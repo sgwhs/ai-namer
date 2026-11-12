@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="名笺 · AI 起名：基于音律、寓意、五行、五格与独特性的中文起名工具，纯前端运行，可选接入大模型。" />
+  <meta name="theme-color" content="#f7f4ec" />
+  <title>名笺 · AI 起名</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23a84b3f'/%3E%3Cpath d='M20 22h24M32 22v24M20 32h24M20 42h10M42 42h10' stroke='%23fdf6ee' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div class="seal">名</div>
+      <div>
+        <h1>名笺</h1>
+        <p>给一个好名字，留一段好念想</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="ghost-btn" id="openSaved" type="button">收藏 <span id="savedCount">0</span></button>
+      <button class="ghost-btn" id="openApi" type="button">
+        <i class="status-dot" id="apiDot"></i>大模型
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel" aria-label="起名条件">
+      <h2 class="panel-title">起名条件</h2>
+      <form id="nameForm" autocomplete="off">
+        <div class="field">
+          <label for="surname">姓氏</label>
+          <div class="surname-row">
+            <input type="text" id="surname" maxlength="3" placeholder="如：李、欧阳" value="李" />
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">性别倾向</span>
+          <div class="segmented" id="genderGroup" role="group" aria-label="性别倾向">
+            <button type="button" data-value="m">男</button>
+            <button type="button" data-value="f">女</button>
+            <button type="button" data-value="n" class="on">中性</button>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">名字字数</span>
+          <div class="segmented" id="lengthGroup" role="group" aria-label="名字字数">
+            <button type="button" data-value="2" class="on">双字名</button>
+            <button type="button" data-value="1">单字名</button>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">风格偏好 <span class="hint">可多选</span></span>
+          <div class="chips" id="styleChips"></div>
+        </div>
+        <div class="field">
+          <span class="field-label">五行喜用 <span class="hint">可选</span></span>
+          <div class="chips" id="elementChips"></div>
+        </div>
+        <div class="field">
+          <label for="keywords">期望寓意 <span class="hint">空格或逗号分隔</span></label>
+          <input type="text" id="keywords" placeholder="如：光明 坚韧 山水" />
+        </div>
+        <div class="field">
+          <label for="avoid">避讳字 <span class="hint">不想出现的字</span></label>
+          <input type="text" id="avoid" placeholder="如：强 伟" />
+        </div>
+        <div class="field">
+          <label for="count">生成数量</label>
+          <select id="count">
+            <option value="8">8 个</option>
+            <option value="12" selected>12 个</option>
+            <option value="20">20 个</option>
+            <option value="30">30 个</option>
+          </select>
+        </div>
+        <button type="submit" class="primary-btn" id="generateBtn">开 始 起 名</button>
+        <p class="form-foot">评分由音律、寓意、五行、五格笔画与独特性五个维度加权得出，仅供取名参考，不构成命理结论。</p>
+      </form>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="results-head">
+        <div>
+          <h2>候选名字</h2>
+          <div class="results-meta" id="resultsMeta">填好条件，点「开始起名」</div>
+        </div>
+        <div class="results-actions">
+          <button class="ghost-btn" id="reroll" type="button">换一批</button>
+          <button class="ghost-btn" id="exportBtn" type="button">导出 CSV</button>
+        </div>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        <div class="big">名</div>
+        <p>名字是别人认识你的第一句话。<br />从音律到寓意，我们帮你挑到合适的那个。</p>
+      </div>
+
+      <ul class="result-list" id="resultList"></ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>名笺 · 纯前端中文起名工具，数据与算法全部在本地运行。</span>
+    <span><a href="https://github.com/sgwhs/ai-namer" id="repoLink" target="_blank" rel="noopener">GitHub</a> · MIT License</span>
+  </footer>
+
+  <div class="overlay" id="overlay"></div>
+
+  <div class="modal" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="modal-head">
+      <h3 id="detailTitle">名字解析</h3>
+      <button class="icon-btn" type="button" data-close="detailModal" aria-label="关闭">×</button>
+    </div>
+    <div id="detailBody"></div>
+  </div>
+
+  <aside class="drawer" id="savedDrawer" aria-label="收藏列表">
+    <div class="drawer-head">
+      <h3>我的收藏</h3>
+      <button class="icon-btn" type="button" data-close="savedDrawer" aria-label="关闭">×</button>
+    </div>
+    <div class="drawer-body" id="savedBody"></div>
+  </aside>
+
+  <div class="modal" id="apiModal" role="dialog" aria-modal="true" aria-labelledby="apiTitle">
+    <div class="modal-head">
+      <h3 id="apiTitle">接入大模型（可选）</h3>
+      <button class="icon-btn" type="button" data-close="apiModal" aria-label="关闭">×</button>
+    </div>
+    <p class="api-note">
+      不填也能用：默认走内置词库算法。填入任意 OpenAI 兼容接口（DeepSeek、通义、豆包方舟等）后，
+      会优先让模型生成名字，再由本地引擎复核音律、笔画与五格。Key 只存在本机浏览器 localStorage，不会上传到任何第三方服务器。
+    </p>
+    <div class="api-field">
+      <label for="apiBase">接口地址（Base URL）</label>
+      <input type="text" id="apiBase" placeholder="https://api.deepseek.com/v1" />
+    </div>
+    <div class="api-field">
+      <label for="apiKey">API Key</label>
+      <input type="text" id="apiKey" placeholder="sk-..." />
+    </div>
+    <div class="api-field">
+      <label for="apiModel">模型名</label>
+      <input type="text" id="apiModel" placeholder="deepseek-chat" />
+    </div>
+    <div class="modal-foot">
+      <button class="primary-btn" type="button" id="saveApi">保存设置</button>
+      <button class="ghost-btn" type="button" id="clearApi">清除</button>
+    </div>
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/engine.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
