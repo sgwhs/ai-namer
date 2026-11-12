@@ -37,9 +37,13 @@ python3 -m http.server 8080
 
 ### 方式三：部署到 GitHub Pages
 
+Pages 首次使用需要仓库管理员手动开启（`GITHUB_TOKEN` 无仓库管理权限，无法由工作流代为开启）：
+
 1. 仓库 **Settings → Pages → Build and deployment**，Source 选 **GitHub Actions**
-2. 推送到 `main` 后，`.github/workflows/deploy-pages.yml` 会自动发布
-3. 站点地址形如 `https://<你的用户名>.github.io/ai-namer/`
+2. 到 **Actions → Deploy to GitHub Pages → Run workflow** 手动跑一次（工作流已设为仅手动触发，避免未开启时刷出一片失败任务）
+3. 站点地址为 `https://sgwhs.github.io/ai-namer/`
+
+> 开启之后，如果想恢复“每次 push 自动发布”，把 `.github/workflows/deploy-pages.yml` 里的 `on:` 加回 `push: branches: [main]` 即可。
 
 ## 接入大模型（可选）
 
@@ -113,6 +117,8 @@ npm test          # 等价于 node tests/engine.test.js
 ```
 
 覆盖：字库字段完整性、姓氏解析（单姓/复姓/未知姓）、双字名与单字名、性别筛选、五行筛选、避讳字、风格命中、寓意加权、换一批、五格计算、外部名字复核、拼音工具。
+
+CI：`.github/workflows/test.yml` 在每次 push 到 `main` 时自动跑 `npm test`。
 
 ## 数据说明
 
