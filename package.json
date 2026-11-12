@@ -1,0 +1,20 @@
+{
+  "name": "mingjian-name-generator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "名笺 · 纯前端中文 AI 起名工具，五维评分（音律/寓意/五行/五格/独特性）",
+  "keywords": ["chinese-name", "name-generator", "naming", "起名", "取名"],
+  "license": "MIT",
+  "author": "sgwhs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sgwhs/ai-namer.git"
+  },
+  "scripts": {
+    "test": "node tests/engine.test.js",
+    "start": "python3 -m http.server 8080"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
