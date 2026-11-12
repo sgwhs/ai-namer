@@ -1,10 +1,8 @@
 name: Deploy to GitHub Pages
 
-# 仅手动触发。
-# 原因：仓库首次使用前需在 Settings → Pages 里把 Source 设为 GitHub Actions，
-# 而该步骤需要仓库管理权限，GITHUB_TOKEN 无法代为开启（configure-pages 的 enablement 会被拒绝）。
-# 开启后可在 Actions 页面点 “Run workflow”，后续也可把 push 触发打开。
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:

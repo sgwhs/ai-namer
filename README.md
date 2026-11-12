@@ -2,6 +2,8 @@
 
 > 一个纯前端的中文起名工具：用音律、字义、五行、五格与独特性五个维度，把「好听」拆成可以解释的分数。
 
+**在线体验：https://sgwhs.github.io/ai-namer/**
+
 **零依赖、零后端、开箱即用。** 打开 `index.html` 就能起名；也可以选填一个大模型 API Key，让模型先出创意，再由本地引擎复核音律与笔画。
 
 ---
@@ -24,7 +26,7 @@
 
 下载仓库后双击 `index.html`，全程离线可用，不需要 Node，也不需要联网。
 
-### 方式二：起一个本地静态服务（推荐）
+### 方式二：起一个本地静态服务（推荐调试）
 
 ```bash
 git clone https://github.com/sgwhs/ai-namer.git
@@ -35,15 +37,11 @@ python3 -m http.server 8080
 
 > 用本地服务而不是 `file://` 打开，是为了让「可选的大模型接口」能够正常发起跨域请求。
 
-### 方式三：部署到 GitHub Pages
+### 方式三：GitHub Pages（已配置）
 
-Pages 首次使用需要仓库管理员手动开启（`GITHUB_TOKEN` 无仓库管理权限，无法由工作流代为开启）：
+仓库已将 Pages 的 Source 设为 **GitHub Actions**。`main` 分支每次 push 会自动发布，也可在 **Actions → Deploy to GitHub Pages → Run workflow** 手动触发。
 
-1. 仓库 **Settings → Pages → Build and deployment**，Source 选 **GitHub Actions**
-2. 到 **Actions → Deploy to GitHub Pages → Run workflow** 手动跑一次（工作流已设为仅手动触发，避免未开启时刷出一片失败任务）
-3. 站点地址为 `https://sgwhs.github.io/ai-namer/`
-
-> 开启之后，如果想恢复“每次 push 自动发布”，把 `.github/workflows/deploy-pages.yml` 里的 `on:` 加回 `push: branches: [main]` 即可。
+站点地址：`https://sgwhs.github.io/ai-namer/`
 
 ## 接入大模型（可选）
 
